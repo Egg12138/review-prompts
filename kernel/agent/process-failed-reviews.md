@@ -136,7 +136,8 @@ Examples:
 │   └── ...
 ├── subsystem/
 │   ├── subsystem.md
-│   ├── networking.md
+│   ├── networking-core.md
+│   ├── networking-drivers.md
 │   ├── drm.md
 │   ├── locking.md
 │   └── ...

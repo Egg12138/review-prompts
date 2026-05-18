@@ -233,6 +233,10 @@ than asserting a definite bug.
 The decisions about filtering issues happened in other prompts, your one and
 only job is to format those issues.
 
+**Commit-message issues**: Treat any issue with `file_name: "COMMIT_MESSAGE"`
+or an issue source that points at the commit message as a commit-message issue,
+and format it using inline-template.md's "Commit Message Issues" section.
+
 Follow inline-template.md's instructions to create `<output_dir>/review-inline.txt` using the issue data from the result files
 
 ### Step 5: Create review-metadata.json

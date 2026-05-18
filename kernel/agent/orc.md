@@ -519,7 +519,8 @@ Analyze patch file /path/to/patch.diff
 ├── callstack.md
 ├── subsystem/
 │   ├── subsystem.md
-│   ├── networking.md
+│   ├── networking-core.md
+│   ├── networking-drivers.md
 │   ├── mm.md
 │   ├── locking.md
 │   └── ...
