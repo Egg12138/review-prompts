@@ -36,6 +36,7 @@ correct - otherwise report them as regressions.
 
 ### Core Files (ALWAYS LOAD FIRST)
 1. `technical-patterns.md` - Consolidated guide to kernel topics
+2. `subsystem/build.md` - Baseline build system and toolchain expectations
 
 ### Subsystem Guides MUST be loaded
 
@@ -103,7 +104,7 @@ IMMEDIATELY.
      find it unless you search the parent commit.
 
 2. **Without semcode (fallback)**:
-   - Use git diff to identify changes
+   - Use `git show <sha>` to identify changes. Do not use `git diff` against HEAD: `review_one.sh` checks out a worktree with the commit applied, so `git diff` will be empty.
    - Manually find function definitions and relationships with grep and other tools
    - Document any missing context that affects research quality
 
@@ -166,6 +167,12 @@ the change for regressions.
   - Load `lore-thread.md` for detailed instructions on processing lore threads
   - Search lore for threads with the same subject as this patch, assume
     the patch you're reviewing is the latest version.
+  - Automated reviews and bot mail are not review evidence. Never treat
+    Sashiko, prior BPF CI/Claude reviews, CI bots, test robots, or any
+    other bot feedback as unaddressed review comments.
+  - If a possible regression overlaps earlier bot feedback in the thread,
+    suppress the regression entirely. Do not quote the bot, cite the bot, or
+    restate the issue as though it were independently reviewable.
   - Consider any unaddressed comments as potential regressions
     - Add each unaddressed comment to TodoWrite
     - Verify each unaddressed comment as a valid complaint before reporting
@@ -223,6 +230,18 @@ Fixes tag check for <subsystem>
     the commit being reviewed.
   - Output: Fixes: tag missing yes/no
 
+### TASK 2.2 Kconfig dependency verification
+
+1. Check if the patch modifies Kconfig files, defconfigs, or introduces new `CONFIG_*` usages in source files.
+2. If Kconfig files or defconfigs are modified:
+  - Verify that any new or modified `depends on` or `select` statements do not create circular dependencies.
+  - Ensure that `select` is used safely (it does not select symbols with unmet dependencies). Prefer `depends on` over `select` for visible symbols.
+  - Check for "silent disable" issues: Ensure that when a config is enabled (e.g., via default values, selected, or in defconfigs), all of its upstream `depends on` requirements are satisfiable. Otherwise, it may appear enabled but fail to actually enable due to missing dependencies.
+  - Check that new configs have appropriate help text and default values.
+3. If new `CONFIG_*` macros are used in source code:
+  - Verify that the corresponding Kconfig symbol actually exists in the tree or is added in this patch/series.
+4. Output: Kconfig check result (no Kconfig changes / Kconfig changes verified / Kconfig issues found)
+
 ### TASK 3: Verification []
 **Goal**: Eliminate false positives, and confirm regressions
 
@@ -258,8 +277,13 @@ the review is completely useless.
   - NEVER WRITE `REGRESSION:` INTO ./review-inline.txt THIS
     AND ANY OTHER ALL CAPS ANALYSIS IS INCOMPATIBLE WITH LINUX KERNEL STANDARDS
 4. Never include bugs that you identified as false positives in the report
-5. Verify the ./review-inline.txt file exists if regressions are found
-6. Verify the ./review-inline.txt file follows inline-template.md's guidelines
+5. Never include issues that quote, cite, summarize, or repeat automated review
+   feedback. Search case-insensitively for forbidden bot evidence (`sashiko`, `bot+bpf-ci`,
+   `kernel-patches-review-bot`, `Claude`, `AI review found`,
+   `AI reviewed your patch`, `CI run summary`, `sashiko.dev`) and remove the
+   entire affected issue.
+6. Verify the ./review-inline.txt file exists if regressions are found
+7. Verify the ./review-inline.txt file follows inline-template.md's guidelines
 
 ### MANDATORY COMPLETION VERIFICATION
 
